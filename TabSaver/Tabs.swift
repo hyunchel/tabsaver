@@ -7,9 +7,18 @@
 //
 
 import Foundation
-import Automator
 
-func getTabsInformation() -> String {
+func convertToArrayOfDictionary(text: String) -> [[String: Any]]? {
+    let data: Data
+    data = text.data(using: .utf8)!
+    let json = try? JSONSerialization.jsonObject(with: data, options: [])
+    if let array = json as? [[String: Any]] {
+        return array
+    }
+    return nil
+}
+
+func getTabData() -> String {
     let scriptContent = """
         const getApplication = name => Application(name);
         const getRunningApp = app => app.running();
