@@ -9,11 +9,14 @@
 import Cocoa
 
 class ViewController: NSViewController {
-
+    @IBOutlet weak var tabCountTextField: NSTextField!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        let tabsInfo = getTabsInformation()
+        updateTabsDisplay(tabsInfo: tabsInfo)
     }
 
     override var representedObject: Any? {
@@ -25,3 +28,8 @@ class ViewController: NSViewController {
 
 }
 
+extension ViewController {
+    func updateTabsDisplay(tabsInfo: String) {
+        tabCountTextField.stringValue = tabsInfo
+    }
+}

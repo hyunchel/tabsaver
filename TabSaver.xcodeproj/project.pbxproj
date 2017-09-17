@@ -11,6 +11,7 @@
 		A5D6C3E11F6DFFDD0038A195 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D6C3E01F6DFFDD0038A195 /* ViewController.swift */; };
 		A5D6C3E31F6DFFDD0038A195 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A5D6C3E21F6DFFDD0038A195 /* Assets.xcassets */; };
 		A5D6C3E61F6DFFDD0038A195 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A5D6C3E41F6DFFDD0038A195 /* Main.storyboard */; };
+		A5D6C3EF1F6E013A0038A195 /* Tabs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D6C3EE1F6E013A0038A195 /* Tabs.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,7 @@
 		A5D6C3E51F6DFFDD0038A195 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A5D6C3E71F6DFFDD0038A195 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A5D6C3E81F6DFFDD0038A195 /* TabSaver.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TabSaver.entitlements; sourceTree = "<group>"; };
+		A5D6C3EE1F6E013A0038A195 /* Tabs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tabs.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +57,7 @@
 			children = (
 				A5D6C3DE1F6DFFDD0038A195 /* AppDelegate.swift */,
 				A5D6C3E01F6DFFDD0038A195 /* ViewController.swift */,
+				A5D6C3EE1F6E013A0038A195 /* Tabs.swift */,
 				A5D6C3E21F6DFFDD0038A195 /* Assets.xcassets */,
 				A5D6C3E41F6DFFDD0038A195 /* Main.storyboard */,
 				A5D6C3E71F6DFFDD0038A195 /* Info.plist */,
@@ -95,6 +98,11 @@
 				TargetAttributes = {
 					A5D6C3DA1F6DFFDD0038A195 = {
 						CreatedOnToolsVersion = 9.0;
+						SystemCapabilities = {
+							com.apple.Sandbox = {
+								enabled = 0;
+							};
+						};
 					};
 				};
 			};
@@ -135,6 +143,7 @@
 			files = (
 				A5D6C3E11F6DFFDD0038A195 /* ViewController.swift in Sources */,
 				A5D6C3DF1F6DFFDD0038A195 /* AppDelegate.swift in Sources */,
+				A5D6C3EF1F6E013A0038A195 /* Tabs.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -262,7 +271,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = TabSaver/TabSaver.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = MPY5N27G6W;
 				INFOPLIST_FILE = TabSaver/Info.plist;
@@ -277,7 +285,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = TabSaver/TabSaver.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = MPY5N27G6W;
 				INFOPLIST_FILE = TabSaver/Info.plist;
