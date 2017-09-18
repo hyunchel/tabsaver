@@ -7,6 +7,65 @@
 //
 
 import Foundation
+import os.log
+
+
+struct PropertyKey {
+    static let name = "name"
+    static let url = "url"
+    static let index = "index"
+    
+    static let jsonString = "jsonString"
+}
+
+class TabsData: NSObject, NSCoding {
+    
+    // MARK: Properties
+    var jsonString: String
+    
+    // MARK: Archiving Paths
+    static let DocumentsDirectory = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first!
+    static let ArchiveURL = DocumentsDirectory.appendingPathComponent("tabsData")
+
+    // MARK: Initialization
+    init?(jsonString: String) {
+        // The only case where the initialization should fail.
+        if jsonString.isEmpty {
+            return nil
+        }
+        
+        // Initialize properties here.
+        self.jsonString = jsonString
+    }
+    
+    // MARK: NSCoding
+    func encode(with aCoder: NSCoder) {
+        aCoder.encode(jsonString, forKey: PropertyKey.jsonString)
+    }
+    
+    required convenience init?(coder aDecoder: NSCoder) {
+        // The name is required, if no "name", this initialization should fail.
+        guard let jsonString = aDecoder.decodeObject(forKey: PropertyKey.jsonString) as? String
+            else {
+                os_log("Unable to decode a JSON string for TabsData", log: OSLog.default, type: .debug)
+                return nil
+        }
+        // Must call designated initializer.
+        self.init(jsonString: jsonString)
+    }
+    
+    func toString() -> String {
+        return self.jsonString
+    }
+}
+
+// Save an array of dictionaries per request.
+// This way the number of "sessions" a user saved corresponds with the number of JSON data stored.
+// Keep in mind that we are *not* writing files - we are using Core Data to handle database interactions.
+
+func saveTabs(jsonString: String) {
+//    let tabsData = TabsData(jsonString)
+}
 
 func convertToArrayOfDictionary(text: String) -> [[String: Any]]? {
     let data: Data
