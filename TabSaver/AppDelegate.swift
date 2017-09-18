@@ -23,7 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 if let arrOfDict = convertToArrayOfDictionary(text: tabsData.toString()) {
                     
                     for dict in arrOfDict {
-                        loadMenu.submenu!.addItem(withTitle: dict["name"] as! String, action: nil, keyEquivalent: "")
+                        loadMenu.submenu!.addItem(withTitle: dict["name"] as! String, action: #selector(menuItemClicked), keyEquivalent: "")
                     }
                     os_log("Loaded, and menu items are populated.", log: OSLog.default, type: .debug)
                 } else {
@@ -33,8 +33,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             os_log("Nothing is loaded.", log: OSLog.default, type: .debug)
         }
-     
-
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -54,6 +52,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func loadTabsData() -> [TabsData]? {
         // Return [[String: Any]] ?
         return NSKeyedUnarchiver.unarchiveObject(withFile: TabsData.ArchiveURL.path) as? [TabsData]
+    }
+    
+    @objc
+    private func menuItemClicked(_ sender: Any) {
+        os_log("menuItemClicked.", log: OSLog.default, type: .debug)
+        openSafariTab(url: "Test url")
     }
 
 }

@@ -59,6 +59,20 @@ class TabsData: NSObject, NSCoding {
     }
 }
 
+func openSafariTab(url: String) {
+    let testUrl = "https://github.com"
+    let scriptContent = """
+        function run(argv) {
+            var app = Application("Safari");
+            app.Document().make();
+            const lastIndex = app.windows.length - 1;
+            var newTab = app.Tab({ url: "\(testUrl)" });
+            app.windows()[lastIndex].tabs.push(newTab);
+        };
+    """
+    runShell(args: "osascript", "-l", "JavaScript", "-e", scriptContent)
+}
+
 // Save an array of dictionaries per request.
 // This way the number of "sessions" a user saved corresponds with the number of JSON data stored.
 // Keep in mind that we are *not* writing files - we are using Core Data to handle database interactions.
