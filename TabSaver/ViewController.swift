@@ -18,29 +18,6 @@ class ViewController: NSViewController {
         
         // Do any additional setup after loading the view.
         
-        // Load JSON files here
-        var tabs: [[String: Any]]
-        tabs = []
-        if let savedTabsData = loadTabsData() {
-            for tabsData in savedTabsData {
-                tabs += convertToArrayOfDictionary(text: tabsData.toString())!
-            }
-        }
-        let tabsInfo = getTabData()
-        let currentTabsData = convertToArrayOfDictionary(text: tabsInfo)
-        let count = currentTabsData!.count
-        updateTabsDisplay(tabsInfo: String(count))
-        print(tabs.count)
-        print(tabs[0])
-        
-        // Assuming the user hit save here.
-        // saveTabsData(tabsData: TabsData(jsonString: tabsInfo)!)
-        var tabNames = ""
-        for tab in tabs {
-            tabNames += tab["name"] as! String
-            tabNames += "\n"
-        }
-        tabsDataLabel.stringValue = tabNames
     }
 
     override var representedObject: Any? {
@@ -48,9 +25,96 @@ class ViewController: NSViewController {
         // Update the view, if already loaded.
         }
     }
+    
+    // MARK: ButtonClicked Implementations.
+    
+    @IBAction func loadButtonClicked(_ sender: Any) {
+        var tabs: [[String: Any]]
+        tabs = []
+        if let savedTabsData = loadTabsData() {
+            for tabsData in savedTabsData {
+                tabs += convertToArrayOfDictionary(text: tabsData.toString())!
+            }
+        }
+        var tabNames = ""
+        for tab in tabs {
+            tabNames += tab["name"] as! String
+            tabNames += "\n"
+        }
+        tabsDataLabel.stringValue = tabNames
+    }
+    
+    @IBAction func loadRecentButtonClicked(_ sender: Any) {
+        print("Not implemented yet!")
+    }
+    
+    @IBAction func saveButtonClicked(_ sender: Any) {
+        // Save the current tabs for now.
+        let tabsInfoJSONString = getTabData()
+        saveTabsData(tabsData: TabsData(jsonString: tabsInfoJSONString)!)
+        
+    }
+    
+    @IBAction func saveAsButtonClicked(_ sender: Any) {
+        print("Not implemented yet!")
+    }
+    
+    @IBAction func clearButtonClicked(_ sender: Any) {
+        tabsDataLabel.stringValue = "Cleared."
+    }
+    
+    // MARK: MenuItemSelected Implementations.
+    // These functions are for better logging.
+    
+    @IBAction func actionMenuSelected(_ sender: Any) {
+        print("HELLO!")
+    }
+    
+    @IBAction func loadMenuItemSelected(_ sender: Any) {
+        print("loadMenuItemSelected")
+//        loadButtonClicked(sender)
+    }
+    
+    @IBAction func loadRecentMenuItemSelected(_ sender: Any) {
+        print("loadRecentMenuItemSelected")
+//        loadRecentButtonClicked(sender)
+    }
+    
+    @IBAction func saveMenuItemSelected(_ sender: Any) {
+        saveButtonClicked(sender)
+    }
+    
+    @IBAction func saveAsMenuItemSelected(_ sender: Any) {
+        saveAsButtonClicked(sender)
+    }
+    
 }
 
 extension ViewController {
+    
+    // MARK: Helper functions
+    
+    func populateLoadSubMenus() {
+        var tabs: [[String: Any]]
+        tabs = []
+        if let savedTabsData = loadTabsData() {
+            // Load menu items.
+            // How do you get access to that menu?
+            
+            for tabsData in savedTabsData {
+                
+            }
+        } else {
+            // Load empty menu here.
+        }
+    }
+    
+    func populateLoadRecentSubMenus() {
+        
+    }
+    
+    // MARK: Update functions
+    
     func updateTabsDisplay(tabsInfo: String) {
         tabCountTextField.stringValue = tabsInfo
     }
