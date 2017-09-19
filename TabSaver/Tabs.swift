@@ -65,9 +65,8 @@ func openSafariTab(url: String) {
         function run(argv) {
             var app = Application("Safari");
             app.Document().make();
-            const lastIndex = app.windows.length - 1;
             var newTab = app.Tab({ url: "\(testUrl)" });
-            app.windows()[lastIndex].tabs.push(newTab);
+            app.windows()[0].tabs.push(newTab);
         };
     """
     runShell(args: "osascript", "-l", "JavaScript", "-e", scriptContent)
