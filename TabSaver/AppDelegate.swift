@@ -14,14 +14,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @IBOutlet weak var loadMenu: NSMenuItem!
     
+    var loadedTabsData: [TabsData] = []
+    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
         
         // Load up menu items.
         if let savedTabs = loadTabsData() {
+            self.loadedTabsData = savedTabs
             for tabsData in savedTabs {
                 if let arrOfDict = convertToArrayOfDictionary(text: tabsData.toString()) {
-                    
                     for dict in arrOfDict {
                         loadMenu.submenu!.addItem(withTitle: dict["name"] as! String, action: #selector(menuItemClicked), keyEquivalent: "")
                     }
@@ -53,12 +55,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Return [[String: Any]] ?
         return NSKeyedUnarchiver.unarchiveObject(withFile: TabsData.ArchiveURL.path) as? [TabsData]
     }
-    
-    @objc
-    private func menuItemClicked(_ sender: Any) {
-        os_log("menuItemClicked.", log: OSLog.default, type: .debug)
-        openSafariTab(url: "Test url")
-    }
 
+    @objc
+    func menuItemClicked(_ sender: NSMenuItem) {
+        // Search for the corresponding URL given a title.
+        for tabsData in self.loadedTabsData {
+            if let arrOfDict = convertToArrayOfDictionary(text: tabsData.toString()) {
+                for tab in arrOfDict {
+                    if tab["name"] as! String == sender.title {
+                        openSafariTab(url: tab["url"] as! String)
+                        return
+                    }
+                }
+            }
+        }
+    }
 }
 

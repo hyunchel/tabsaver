@@ -59,13 +59,14 @@ class TabsData: NSObject, NSCoding {
     }
 }
 
+
+
 func openSafariTab(url: String) {
-    let testUrl = "https://github.com"
     let scriptContent = """
         function run(argv) {
             var app = Application("Safari");
             app.Document().make();
-            var newTab = app.Tab({ url: "\(testUrl)" });
+            var newTab = app.Tab({ url: "\(url)" });
             app.windows()[0].tabs.push(newTab);
         };
     """
