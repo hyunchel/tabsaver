@@ -40,8 +40,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // MARK: Private Methods
-
-
     @objc
     func menuItemClicked(_ sender: NSMenuItem) {
         // Search for the corresponding URL given a title.
@@ -51,7 +49,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     var urls: [String]
                     urls = []
                     for tab in dict["data"] as! [[String: Any]] {
-//                        let tabDict = tab as! [String: Any]
                         urls.append(tab["url"] as! String)
                     }
                     openSafariTabs(urls: urls)
@@ -60,4 +57,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
     }
+    
+    @IBAction func saveMenuItemSelected(_ sender: Any) {
+        os_log("Save MenuItem is selected.", log: OSLog.default, type: .debug)
+        // Save the current tabs for now.
+        let tabsInfoJSONString = getTabData()
+        saveTabsData(tabsData: TabsData(jsonString: tabsInfoJSONString)!)
+    }
+    
 }

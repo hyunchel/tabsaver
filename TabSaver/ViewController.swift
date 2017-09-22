@@ -79,9 +79,11 @@ class ViewController: NSViewController {
 //        loadRecentButtonClicked(sender)
     }
     
-    @IBAction func saveMenuItemSelected(_ sender: Any) {
+    @IBAction func saveMenuItemSelected2(_ sender: Any) {
         os_log("Save MenuItem is selected.", log: OSLog.default, type: .debug)
-        saveButtonClicked(sender)
+        // Save the current tabs for now.
+        let tabsInfoJSONString = getTabData()
+        saveTabsData(tabsData: TabsData(jsonString: tabsInfoJSONString)!)
     }
     
     @IBAction func saveAsMenuItemSelected(_ sender: Any) {
