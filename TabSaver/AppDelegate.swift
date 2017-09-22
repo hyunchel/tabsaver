@@ -12,12 +12,19 @@ import os.log
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     
+    @IBOutlet weak var statusMenu: NSMenu!
+    let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     @IBOutlet weak var loadMenu: NSMenuItem!
     
     var loadedTabsData: [TabsData] = []
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
+        
+        let icon = NSImage(named: NSImage.Name(rawValue: "statusIcon"))
+        icon?.isTemplate = true // best for dark mode
+        statusItem.image = icon
+        statusItem.menu = statusMenu
         
         // Load up menu items.
         if let savedTabs = loadTabsData() {
@@ -58,6 +65,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
+    @IBAction func quitSelected(_ sender: NSMenuItem) {
+        NSApplication.shared.terminate(self)
+    }
     @IBAction func saveMenuItemSelected(_ sender: Any) {
         os_log("Save MenuItem is selected.", log: OSLog.default, type: .debug)
         // Save the current tabs for now.
