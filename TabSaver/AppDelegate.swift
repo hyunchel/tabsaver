@@ -23,10 +23,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if let savedTabs = loadTabsData() {
             self.loadedTabsData = savedTabs
             for tabsData in savedTabs {
-                if let arrOfDict = convertToArrayOfDictionary(text: tabsData.toString()) {
-                    for dict in arrOfDict {
-                        loadMenu.submenu!.addItem(withTitle: dict["name"] as! String, action: #selector(menuItemClicked), keyEquivalent: "")
-                    }
+                if let dict = convertToDictionary(text: tabsData.toString()) {
+                    loadMenu.submenu!.addItem(withTitle: dict["name"] as! String, action: #selector(menuItemClicked), keyEquivalent: "")
                     os_log("Loaded, and menu items are populated.", log: OSLog.default, type: .debug)
                 } else {
                     os_log("Loaded, but nothing in it.", log: OSLog.default, type: .debug)
@@ -48,12 +46,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func menuItemClicked(_ sender: NSMenuItem) {
         // Search for the corresponding URL given a title.
         for tabsData in self.loadedTabsData {
-            if let arrOfDict = convertToArrayOfDictionary(text: tabsData.toString()) {
-                for tab in arrOfDict {
-                    if tab["name"] as! String == sender.title {
-                        openSafariTab(url: tab["url"] as! String)
-                        return
+            if let dict = convertToDictionary(text: tabsData.toString()) {
+                if dict["name"] as! String == sender.title {
+                    var urls: [String]
+                    urls = []
+                    for tab in dict["data"] as! [[String: Any]] {
+//                        let tabDict = tab as! [String: Any]
+                        urls.append(tab["url"] as! String)
                     }
+                    openSafariTabs(urls: urls)
+                    return
                 }
             }
         }

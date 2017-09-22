@@ -80,6 +80,7 @@ class ViewController: NSViewController {
     }
     
     @IBAction func saveMenuItemSelected(_ sender: Any) {
+        os_log("Save MenuItem is selected.", log: OSLog.default, type: .debug)
         saveButtonClicked(sender)
     }
     

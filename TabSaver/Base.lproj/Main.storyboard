@@ -64,8 +64,11 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Save" id="DJb-aP-nI3">
                                     <items>
-                                        <menuItem title="Just do it" id="oyO-2s-06q">
+                                        <menuItem title="Save" id="m69-09-T3X">
                                             <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="saveMenuItemSelected:" target="Ady-hI-5gd" id="gaK-f5-g8S"/>
+                                            </connections>
                                         </menuItem>
                                     </items>
                                 </menu>

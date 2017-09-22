@@ -59,7 +59,25 @@ class TabsData: NSObject, NSCoding {
     }
 }
 
-
+func openSafariTabs(urls: [String]) {
+    let scriptContent = """
+    function run(argv) {
+        var app = Application("Safari");
+        var newTabs = argv.map(url => {
+            console.log(url);
+            console.log("Making a class.");
+            var tab =  app.Tab({ url: url })
+            console.log("Successfully made a class");
+            return tab;
+        });
+        app.Document().make();
+        Array.prototype.push.apply(app.windows()[0].tabs, newTabs);
+    };
+    """
+    var args = [scriptContent]
+    args.append(contentsOf: urls)
+    runOSAScriptMultipleArguments(args)
+}
 
 func openSafariTab(url: String) {
     let scriptContent = """
@@ -74,7 +92,15 @@ func openSafariTab(url: String) {
 }
 
 func saveTabsData(tabsData: TabsData) {
-    let isSuccessfulSave = NSKeyedArchiver.archiveRootObject([tabsData], toFile: TabsData.ArchiveURL.path)
+    // Load the previously saved data and re-save with new data added.
+    var savedTabsData = loadTabsData()
+    if savedTabsData == nil {
+        savedTabsData = []
+    }
+    savedTabsData!.append(tabsData)
+    os_log("Saving:", log: OSLog.default, type: .debug)
+    print(savedTabsData)
+    let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(savedTabsData, toFile: TabsData.ArchiveURL.path)
     if isSuccessfulSave {
         os_log("TabsData successfully saved.", log: OSLog.default, type: .debug)
     } else {
@@ -90,6 +116,7 @@ func loadTabsData() -> [TabsData]? {
 func deleteAllTabsData() {
     do {
         try FileManager.default.removeItem(at: TabsData.ArchiveURL)
+        os_log("Successfully deleted TabsData.", log: OSLog.default, type: .debug)
     } catch {
         os_log("Failed to delete saved tabs data.", log: OSLog.default, type: .error)
     }
@@ -107,6 +134,16 @@ func convertToArrayOfDictionary(text: String) -> [[String: Any]]? {
     data = text.data(using: .utf8)!
     let json = try? JSONSerialization.jsonObject(with: data, options: [])
     if let array = json as? [[String: Any]] {
+        return array
+    }
+    return nil
+}
+
+func convertToDictionary(text: String) -> [String: Any]? {
+    let data: Data
+    data = text.data(using: .utf8)!
+    let json = try? JSONSerialization.jsonObject(with: data, options: [])
+    if let array = json as? [String: Any] {
         return array
     }
     return nil
@@ -136,10 +173,34 @@ func getTabData() -> String {
                 .map(getTabs)
                 .reduce(spreadOut, [])
                 .map(makeData);
-            return JSON.stringify(tabs);
+            return JSON.stringify({
+                name: (new Date()).toJSON(),
+                data: tabs,
+            });
         };
     """
     let output = runShell(args: "osascript", "-l", "JavaScript", "-e", scriptContent)
+    return output
+}
+
+func runOSAScriptMultipleArguments(_ args: [String]) -> String {
+    let task = Process()
+    task.launchPath = "/usr/bin/env"
+    var osaArgs = ["osascript", "-l", "JavaScript", "-e"]
+    osaArgs += args
+    task.arguments = osaArgs
+    
+    let pipe = Pipe()
+    task.standardOutput = pipe
+    
+    task.launch()
+    task.waitUntilExit()
+    
+    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    
+    guard let output: String = String(data: data, encoding: .utf8) else {
+        return ""
+    }
     return output
 }
 
