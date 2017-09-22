@@ -9,7 +9,7 @@
 import Foundation
 import os.log
 
-
+// MARK: Classes and Structs
 struct PropertyKey {
     static let name = "name"
     static let url = "url"
@@ -59,20 +59,15 @@ class TabsData: NSObject, NSCoding {
     }
 }
 
+// MARK: OSAScript functions
 func openSafariTabs(urls: [String]) {
     let scriptContent = """
-    function run(argv) {
-        var app = Application("Safari");
-        var newTabs = argv.map(url => {
-            console.log(url);
-            console.log("Making a class.");
-            var tab =  app.Tab({ url: url })
-            console.log("Successfully made a class");
-            return tab;
-        });
-        app.Document().make();
-        Array.prototype.push.apply(app.windows()[0].tabs, newTabs);
-    };
+        function run(argv) {
+            var app = Application("Safari");
+            var newTabs = argv.map(url => app.Tab({ url: url }));
+            app.Document().make();
+            Array.prototype.push.apply(app.windows()[0].tabs, newTabs);
+        };
     """
     var args = [scriptContent]
     args.append(contentsOf: urls)
@@ -91,64 +86,7 @@ func openSafariTab(url: String) {
     runShell(args: "osascript", "-l", "JavaScript", "-e", scriptContent)
 }
 
-func saveTabsData(tabsData: TabsData) {
-    // Load the previously saved data and re-save with new data added.
-    var savedTabsData = loadTabsData()
-    if savedTabsData == nil {
-        savedTabsData = []
-    }
-    savedTabsData!.append(tabsData)
-    os_log("Saving:", log: OSLog.default, type: .debug)
-    print(savedTabsData)
-    let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(savedTabsData, toFile: TabsData.ArchiveURL.path)
-    if isSuccessfulSave {
-        os_log("TabsData successfully saved.", log: OSLog.default, type: .debug)
-    } else {
-        os_log("Failed to save tabs data.", log:OSLog.default, type: .error)
-    }
-}
-
-func loadTabsData() -> [TabsData]? {
-    // Return [[String: Any]] ?
-    return NSKeyedUnarchiver.unarchiveObject(withFile: TabsData.ArchiveURL.path) as? [TabsData]
-}
-
-func deleteAllTabsData() {
-    do {
-        try FileManager.default.removeItem(at: TabsData.ArchiveURL)
-        os_log("Successfully deleted TabsData.", log: OSLog.default, type: .debug)
-    } catch {
-        os_log("Failed to delete saved tabs data.", log: OSLog.default, type: .error)
-    }
-}
-
-// Save an array of dictionaries per request.
-// This way the number of "sessions" a user saved corresponds with the number of JSON data stored.
-// Keep in mind that we are *not* writing files - we are using Core Data to handle database interactions.
-func saveTabs(jsonString: String) {
-//    let tabsData = TabsData(jsonString)
-}
-
-func convertToArrayOfDictionary(text: String) -> [[String: Any]]? {
-    let data: Data
-    data = text.data(using: .utf8)!
-    let json = try? JSONSerialization.jsonObject(with: data, options: [])
-    if let array = json as? [[String: Any]] {
-        return array
-    }
-    return nil
-}
-
-func convertToDictionary(text: String) -> [String: Any]? {
-    let data: Data
-    data = text.data(using: .utf8)!
-    let json = try? JSONSerialization.jsonObject(with: data, options: [])
-    if let array = json as? [String: Any] {
-        return array
-    }
-    return nil
-}
-
+// MARK: TabsData Functions
 func getTabData() -> String {
     let scriptContent = """
         const getApplication = name => Application(name);
@@ -183,6 +121,57 @@ func getTabData() -> String {
     return output
 }
 
+func saveTabsData(tabsData: TabsData) {
+    // Load the previously saved data and re-save with new data added.
+    var savedTabsData = loadTabsData()
+    if savedTabsData == nil {
+        savedTabsData = []
+    }
+    savedTabsData!.append(tabsData)
+    os_log("Saving:", log: OSLog.default, type: .debug)
+    let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(savedTabsData!, toFile: TabsData.ArchiveURL.path)
+    if isSuccessfulSave {
+        os_log("TabsData successfully saved.", log: OSLog.default, type: .debug)
+    } else {
+        os_log("Failed to save tabs data.", log:OSLog.default, type: .error)
+    }
+}
+
+func loadTabsData() -> [TabsData]? {
+    return NSKeyedUnarchiver.unarchiveObject(withFile: TabsData.ArchiveURL.path) as? [TabsData]
+}
+
+func deleteAllTabsData() {
+    do {
+        try FileManager.default.removeItem(at: TabsData.ArchiveURL)
+        os_log("Successfully deleted TabsData.", log: OSLog.default, type: .debug)
+    } catch {
+        os_log("Failed to delete saved tabs data.", log: OSLog.default, type: .error)
+    }
+}
+
+// MARK: Conversion Functions
+func convertToArrayOfDictionary(text: String) -> [[String: Any]]? {
+    let data: Data
+    data = text.data(using: .utf8)!
+    let json = try? JSONSerialization.jsonObject(with: data, options: [])
+    if let array = json as? [[String: Any]] {
+        return array
+    }
+    return nil
+}
+
+func convertToDictionary(text: String) -> [String: Any]? {
+    let data: Data
+    data = text.data(using: .utf8)!
+    let json = try? JSONSerialization.jsonObject(with: data, options: [])
+    if let array = json as? [String: Any] {
+        return array
+    }
+    return nil
+}
+
+// MARK: Shell Functions.
 func runOSAScriptMultipleArguments(_ args: [String]) -> String {
     let task = Process()
     task.launchPath = "/usr/bin/env"
