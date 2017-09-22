@@ -73,10 +73,31 @@ func openSafariTab(url: String) {
     runShell(args: "osascript", "-l", "JavaScript", "-e", scriptContent)
 }
 
+func saveTabsData(tabsData: TabsData) {
+    let isSuccessfulSave = NSKeyedArchiver.archiveRootObject([tabsData], toFile: TabsData.ArchiveURL.path)
+    if isSuccessfulSave {
+        os_log("TabsData successfully saved.", log: OSLog.default, type: .debug)
+    } else {
+        os_log("Failed to save tabs data.", log:OSLog.default, type: .error)
+    }
+}
+
+func loadTabsData() -> [TabsData]? {
+    // Return [[String: Any]] ?
+    return NSKeyedUnarchiver.unarchiveObject(withFile: TabsData.ArchiveURL.path) as? [TabsData]
+}
+
+func deleteAllTabsData() {
+    do {
+        try FileManager.default.removeItem(at: TabsData.ArchiveURL)
+    } catch {
+        os_log("Failed to delete saved tabs data.", log: OSLog.default, type: .error)
+    }
+}
+
 // Save an array of dictionaries per request.
 // This way the number of "sessions" a user saved corresponds with the number of JSON data stored.
 // Keep in mind that we are *not* writing files - we are using Core Data to handle database interactions.
-
 func saveTabs(jsonString: String) {
 //    let tabsData = TabsData(jsonString)
 }

@@ -42,19 +42,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // MARK: Private Methods
-    private func saveTabsData(tabsData: TabsData) {
-        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject([tabsData], toFile: TabsData.ArchiveURL.path)
-        if isSuccessfulSave {
-            os_log("TabsData successfully saved.", log: OSLog.default, type: .debug)
-        } else {
-            os_log("Failed to save tabs data.", log:OSLog.default, type: .error)
-        }
-    }
-    
-    private func loadTabsData() -> [TabsData]? {
-        // Return [[String: Any]] ?
-        return NSKeyedUnarchiver.unarchiveObject(withFile: TabsData.ArchiveURL.path) as? [TabsData]
-    }
+
 
     @objc
     func menuItemClicked(_ sender: NSMenuItem) {
@@ -71,4 +59,3 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 }
-
