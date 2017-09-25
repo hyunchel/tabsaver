@@ -87,7 +87,7 @@ func openSafariTab(url: String) {
 }
 
 // MARK: TabsData Functions
-func getTabData() -> String {
+func getTabData(name: String = "") -> String {
     let scriptContent = """
         const getApplication = name => Application(name);
         const getRunningApp = app => app.running();
@@ -112,7 +112,7 @@ func getTabData() -> String {
                 .reduce(spreadOut, [])
                 .map(makeData);
             return JSON.stringify({
-                name: (new Date()).toJSON(),
+                name: "\(name)" === "" ? (new Date()).toJSON() : "\(name)",
                 data: tabs,
             });
         };
@@ -133,6 +133,22 @@ func replaceTabsData(newTabsData: [TabsData]) {
 }
 
 func saveTabsData(tabsData: TabsData) {
+    // Load the previously saved data and re-save with new data added.
+    var savedTabsData = loadTabsData()
+    if savedTabsData == nil {
+        savedTabsData = []
+    }
+    savedTabsData!.append(tabsData)
+    os_log("Saving:", log: OSLog.default, type: .debug)
+    let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(savedTabsData!, toFile: TabsData.ArchiveURL.path)
+    if isSuccessfulSave {
+        os_log("TabsData successfully saved.", log: OSLog.default, type: .debug)
+    } else {
+        os_log("Failed to save tabs data.", log:OSLog.default, type: .error)
+    }
+}
+
+func saveTabsData(name: String, tabsData: TabsData) {
     // Load the previously saved data and re-save with new data added.
     var savedTabsData = loadTabsData()
     if savedTabsData == nil {
