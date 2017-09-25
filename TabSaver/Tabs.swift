@@ -121,6 +121,17 @@ func getTabData() -> String {
     return output
 }
 
+func replaceTabsData(newTabsData: [TabsData]) {
+    // Load the previously saved data and re-save with new data added.
+    os_log("Replacing:", log: OSLog.default, type: .debug)
+    let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(newTabsData, toFile: TabsData.ArchiveURL.path)
+    if isSuccessfulSave {
+        os_log("TabsData successfully replaced.", log: OSLog.default, type: .debug)
+    } else {
+        os_log("Failed to replace tabs data.", log:OSLog.default, type: .error)
+    }
+}
+
 func saveTabsData(tabsData: TabsData) {
     // Load the previously saved data and re-save with new data added.
     var savedTabsData = loadTabsData()

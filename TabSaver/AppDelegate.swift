@@ -16,6 +16,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var statusMenu: NSMenu!
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     @IBOutlet weak var loadMenu: NSMenuItem!
+    @IBOutlet weak var deleteMenu: NSMenuItem!
     
     // MARK: Class Variables
     var loadedTabsData: [TabsData] = []
@@ -30,7 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.menu = statusMenu
         
         // Load saved sessions into Load menus.
-        populateLoadSubMenus()
+        populateSubMenus()
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -38,13 +39,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // MARK: Custom Functions
-    func populateLoadSubMenus() {
+    func populateSubMenus() {
         // Load up menu items.
+        loadMenu.submenu!.removeAllItems()
+        deleteMenu.submenu!.removeAllItems()
         if let savedTabs = loadTabsData() {
             self.loadedTabsData = savedTabs
             for tabsData in savedTabs {
                 if let dict = convertToDictionary(text: tabsData.toString()) {
                     loadMenu.submenu!.addItem(withTitle: dict["name"] as! String, action: #selector(menuItemClicked), keyEquivalent: "")
+                    deleteMenu.submenu!.addItem(withTitle: dict["name"] as! String, action: #selector(deleteMenuItemClicked), keyEquivalent: "")
                 } else {
                     os_log("Loaded, but nothing in it.", log: OSLog.default, type: .debug)
                 }
@@ -72,6 +76,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
     }
+
+    @objc
+    func deleteMenuItemClicked(_ sender: NSMenuItem) {
+        // Search for the corresponding URL given a title.
+        var index = 0
+        for tabsData in self.loadedTabsData {
+            if let dict = convertToDictionary(text: tabsData.toString()) {
+                if dict["name"] as! String == sender.title {
+                    break
+                }
+            }
+            index += 1
+        }
+        self.loadedTabsData.remove(at: index)
+        replaceTabsData(newTabsData: self.loadedTabsData)
+        populateSubMenus()
+    }
     
     @IBAction func quitSelected(_ sender: NSMenuItem) {
         os_log("Quitting! Bye.", log: OSLog.default, type: .debug)
@@ -82,6 +103,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         os_log("Save MenuItem is selected.", log: OSLog.default, type: .debug)
         let tabsInfoJSONString = getTabData()
         saveTabsData(tabsData: TabsData(jsonString: tabsInfoJSONString)!)
+        populateSubMenus()
     }
     
 }

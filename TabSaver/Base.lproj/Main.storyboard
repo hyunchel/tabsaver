@@ -16,6 +16,7 @@
                 </application>
                 <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="TabSaver" customModuleProvider="target">
                     <connections>
+                        <outlet property="deleteMenu" destination="ghM-tm-Ocj" id="klo-3q-ne2"/>
                         <outlet property="loadMenu" destination="rvv-yT-3cC" id="GKj-cW-f9L"/>
                         <outlet property="statusMenu" destination="RM7-6u-oo3" id="21B-Lj-Duu"/>
                     </connections>
@@ -40,6 +41,10 @@
                                     </menuItem>
                                 </items>
                             </menu>
+                        </menuItem>
+                        <menuItem title="Delete" id="ghM-tm-Ocj">
+                            <modifierMask key="keyEquivalentModifierMask"/>
+                            <menu key="submenu" title="Delete" id="imA-0b-bfO"/>
                         </menuItem>
                         <menuItem title="Quit" id="ZYr-rX-ubJ">
                             <modifierMask key="keyEquivalentModifierMask"/>
