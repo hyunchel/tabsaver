@@ -26,18 +26,14 @@ class SaveAsViewController: NSViewController {
         } else {
             tabsInfoJSONString = getTabData(name: sessionTextField.stringValue)
         }
-        saveTabsData(tabsData: TabsData(jsonString: tabsInfoJSONString)!)
+        appendTabsData(tabsData: TabsData(jsonString: tabsInfoJSONString)!)
         // How would you separate "populateSubMenus" function from AppDelegate.
-//        populateSubMenus()
+        // populateSubMenus()
         dismiss(sender)
     }
     
     @IBAction func cancelButtonClicked(_ sender: Any) {
         // This dismiss function seems to work only with modal view.
         dismiss(sender)
-    }
-    
-    @IBAction func loadMenuSelected(_ sender: NSMenuItem) {
-        print("HELLO it is clicked.")
     }
 }

@@ -31,7 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.menu = statusMenu
         
         // Load saved sessions into Load menus.
-        populateSubMenus()
+         populateSubMenus()
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -43,7 +43,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Load up menu items.
         loadMenu.submenu!.removeAllItems()
         deleteMenu.submenu!.removeAllItems()
-        if let savedTabs = loadTabsData() {
+        if let savedTabs = loadAllTabsData() {
             self.loadedTabsData = savedTabs
             for tabsData in savedTabs {
                 if let dict = convertToDictionary(text: tabsData.toString()) {
@@ -61,36 +61,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: Action Functions
     @objc
     func menuItemClicked(_ sender: NSMenuItem) {
-        // Search for the corresponding URL given a title.
-        for tabsData in self.loadedTabsData {
-            if let dict = convertToDictionary(text: tabsData.toString()) {
-                if dict["name"] as! String == sender.title {
-                    var urls: [String]
-                    urls = []
-                    for tab in dict["data"] as! [[String: Any]] {
-                        urls.append(tab["url"] as! String)
-                    }
-                    openSafariTabs(urls: urls)
-                    return
-                }
-            }
-        }
+        os_log("Load MenuItem is selected.", log: OSLog.default, type: .debug)
+        searchAndOpenTabs(loadedTabsData: loadedTabsData, title: sender.title)
     }
 
     @objc
     func deleteMenuItemClicked(_ sender: NSMenuItem) {
-        // Search for the corresponding URL given a title.
-        var index = 0
-        for tabsData in self.loadedTabsData {
-            if let dict = convertToDictionary(text: tabsData.toString()) {
-                if dict["name"] as! String == sender.title {
-                    break
-                }
-            }
-            index += 1
-        }
-        self.loadedTabsData.remove(at: index)
-        replaceTabsData(newTabsData: self.loadedTabsData)
+        os_log("Delete MenuItem is selected.", log: OSLog.default, type: .debug)
+        deleteSelectedMenuItem(loadedTabsData: &self.loadedTabsData, title: sender.title)
         populateSubMenus()
     }
     
@@ -101,9 +79,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @IBAction func saveMenuItemSelected(_ sender: Any) {
         os_log("Save MenuItem is selected.", log: OSLog.default, type: .debug)
-        let tabsInfoJSONString = getTabData()
-        saveTabsData(tabsData: TabsData(jsonString: tabsInfoJSONString)!)
+        saveCurrentSession()
         populateSubMenus()
     }
-    
 }

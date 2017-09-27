@@ -10,6 +10,7 @@ import Foundation
 import os.log
 
 // MARK: Classes and Structs
+
 struct PropertyKey {
     static let name = "name"
     static let url = "url"
@@ -57,9 +58,23 @@ class TabsData: NSObject, NSCoding {
     func toString() -> String {
         return self.jsonString
     }
+    
+    // MARK: Tab related functions.
+    
+    func openTabs() {
+        if let dict = convertToDictionary(text: self.jsonString) {
+            var urls: [String]
+            urls = []
+            for tab in dict["data"] as! [[String: Any]] {
+                urls.append(tab["url"] as! String)
+            }
+            openSafariTabs(urls: urls)
+        }
+    }
 }
 
 // MARK: OSAScript functions
+
 func openSafariTabs(urls: [String]) {
     let scriptContent = """
         function run(argv) {
@@ -74,19 +89,6 @@ func openSafariTabs(urls: [String]) {
     runOSAScriptMultipleArguments(args)
 }
 
-func openSafariTab(url: String) {
-    let scriptContent = """
-        function run(argv) {
-            var app = Application("Safari");
-            app.Document().make();
-            var newTab = app.Tab({ url: "\(url)" });
-            app.windows()[0].tabs.push(newTab);
-        };
-    """
-    runShell(args: "osascript", "-l", "JavaScript", "-e", scriptContent)
-}
-
-// MARK: TabsData Functions
 func getTabData(name: String = "") -> String {
     let scriptContent = """
         const getApplication = name => Application(name);
@@ -117,13 +119,14 @@ func getTabData(name: String = "") -> String {
             });
         };
     """
-    let output = runShell(args: "osascript", "-l", "JavaScript", "-e", scriptContent)
-    return output
+    return runOSAScriptMultipleArguments([scriptContent])
 }
 
-func replaceTabsData(newTabsData: [TabsData]) {
+// MARK: TabsData Functions
+
+func saveAllTabsData(newTabsData: [TabsData]) {
     // Load the previously saved data and re-save with new data added.
-    os_log("Replacing:", log: OSLog.default, type: .debug)
+    os_log("Saving:", log: OSLog.default, type: .debug)
     let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(newTabsData, toFile: TabsData.ArchiveURL.path)
     if isSuccessfulSave {
         os_log("TabsData successfully replaced.", log: OSLog.default, type: .debug)
@@ -132,14 +135,14 @@ func replaceTabsData(newTabsData: [TabsData]) {
     }
 }
 
-func saveTabsData(tabsData: TabsData) {
+func appendTabsData(tabsData: TabsData) {
     // Load the previously saved data and re-save with new data added.
-    var savedTabsData = loadTabsData()
+    var savedTabsData = loadAllTabsData()
     if savedTabsData == nil {
         savedTabsData = []
     }
     savedTabsData!.append(tabsData)
-    os_log("Saving:", log: OSLog.default, type: .debug)
+    os_log("Appending:", log: OSLog.default, type: .debug)
     let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(savedTabsData!, toFile: TabsData.ArchiveURL.path)
     if isSuccessfulSave {
         os_log("TabsData successfully saved.", log: OSLog.default, type: .debug)
@@ -148,23 +151,7 @@ func saveTabsData(tabsData: TabsData) {
     }
 }
 
-func saveTabsData(name: String, tabsData: TabsData) {
-    // Load the previously saved data and re-save with new data added.
-    var savedTabsData = loadTabsData()
-    if savedTabsData == nil {
-        savedTabsData = []
-    }
-    savedTabsData!.append(tabsData)
-    os_log("Saving:", log: OSLog.default, type: .debug)
-    let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(savedTabsData!, toFile: TabsData.ArchiveURL.path)
-    if isSuccessfulSave {
-        os_log("TabsData successfully saved.", log: OSLog.default, type: .debug)
-    } else {
-        os_log("Failed to save tabs data.", log:OSLog.default, type: .error)
-    }
-}
-
-func loadTabsData() -> [TabsData]? {
+func loadAllTabsData() -> [TabsData]? {
     return NSKeyedUnarchiver.unarchiveObject(withFile: TabsData.ArchiveURL.path) as? [TabsData]
 }
 
@@ -178,15 +165,6 @@ func deleteAllTabsData() {
 }
 
 // MARK: Conversion Functions
-func convertToArrayOfDictionary(text: String) -> [[String: Any]]? {
-    let data: Data
-    data = text.data(using: .utf8)!
-    let json = try? JSONSerialization.jsonObject(with: data, options: [])
-    if let array = json as? [[String: Any]] {
-        return array
-    }
-    return nil
-}
 
 func convertToDictionary(text: String) -> [String: Any]? {
     let data: Data
@@ -199,6 +177,7 @@ func convertToDictionary(text: String) -> [String: Any]? {
 }
 
 // MARK: Shell Functions.
+
 func runOSAScriptMultipleArguments(_ args: [String]) -> String {
     let task = Process()
     task.launchPath = "/usr/bin/env"
@@ -220,21 +199,35 @@ func runOSAScriptMultipleArguments(_ args: [String]) -> String {
     return output
 }
 
-func runShell(args: String...) -> String {
-    let task = Process()
-    task.launchPath = "/usr/bin/env"
-    task.arguments = args
-    
-    let pipe = Pipe()
-    task.standardOutput = pipe
-    
-    task.launch()
-    task.waitUntilExit()
-    
-    let data = pipe.fileHandleForReading.readDataToEndOfFile()
-    
-    guard let output: String = String(data: data, encoding: .utf8) else {
-        return ""
+// MARK: Actions.
+
+func searchAndOpenTabs(loadedTabsData: [TabsData], title: String) {
+    // Search for the corresponding URL given a title.
+    for tabsData in loadedTabsData {
+        if let dict = convertToDictionary(text: tabsData.toString()) {
+            if dict["name"] as! String == title {
+                return tabsData.openTabs()
+            }
+        }
     }
-    return output
+}
+
+func deleteSelectedMenuItem(loadedTabsData: inout [TabsData], title: String) {
+    // Search for the corresponding URL given a title.
+    var index = 0
+    for tabsData in loadedTabsData {
+        if let dict = convertToDictionary(text: tabsData.toString()) {
+            if dict["name"] as! String == title {
+                break
+            }
+        }
+        index += 1
+    }
+    loadedTabsData.remove(at: index)
+    saveAllTabsData(newTabsData: loadedTabsData)
+}
+
+func saveCurrentSession() {
+    let tabsInfoJSONString = getTabData()
+    appendTabsData(tabsData: TabsData(jsonString: tabsInfoJSONString)!)
 }
